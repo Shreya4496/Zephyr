@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'screenshare',
     'trend_promotion',
     'FAQchatbot',
+    'twitter_stream',
 ]
 
 MIDDLEWARE = [
