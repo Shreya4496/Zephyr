@@ -18,7 +18,7 @@ from django.contrib import admin
 from Homepage.views import *
 from Zephyr.views import *
 
-from trend_promotion.views import abc, potList, nonVUser
+from trend_promotion.views import abc, potList, nonVUser, get_tweets
 from local_promo.views import local_trends
 
 urlpatterns = [
@@ -29,6 +29,8 @@ url(r'^dashboard/$', DashBoard, name='homepage'),
 #url(r'^trend_promotion/',abc),
 #url(r'^trend_promotion/',include('trend_promotion.urls',namespace="trend_promotion")),
 url(r'^trend_promotion/',abc),
+url(r'^tweets/',get_tweets),
+
 url(r'^local_trendpromo/', local_trends),
 url(r'^potential_offers/', potList),
 url(r'^nonVUser/', nonVUser),

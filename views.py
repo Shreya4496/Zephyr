@@ -156,5 +156,3 @@ def LOC(request):
 
 def Offers(request):
     return render(request, 'offers.html')
-
-

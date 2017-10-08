@@ -46,6 +46,68 @@ def store_location(request):
             print('nope')
     return render(request,'LOCPage.html')
 
+TWITTER_CONSUMER_KEY = 'fX5oAGHDPAvu6MGdOJpBVMg6m'
+TWITTER_CONSUMER_SECRET = 'KxVWhnFOHBiaQUAOAHXBeTZOaeEk0H9eHCwCX55a4V6RNYrIbP'
+TWITTER_ACCESS_TOKEN_KEY = '784601048790999041-98R3Yb1F6A1dTpy1mngaqNUSesl7lIE'
+TWITTER_ACCESS_TOKEN_SECRET = 'DFD91l7l4MDuizDBR9ThmMRKQunyRaryNV0ibH9IkPbwF'
+
+# This is the twitter user that we will be profiling using our news classifier.
+# TWITTER_USER = 'raulgarreta'
+TWITTER_USER = 'diti2205'
+
+### Get user data with Twitter API
+
+# tweepy is used to call the Twitter API from Python
+import tweepy
+import re
+
+# Authenticate to Twitter API
+auth = tweepy.OAuthHandler(TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET)
+auth.set_access_token(TWITTER_ACCESS_TOKEN_KEY, TWITTER_ACCESS_TOKEN_SECRET)
+api = tweepy.API(auth)
+
+def get_tweets( twitter_user='diti2205', tweet_type='timeline', max_tweets=200, min_words=5):
+    auth = tweepy.OAuthHandler(TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET)
+    auth.set_access_token(TWITTER_ACCESS_TOKEN_KEY, TWITTER_ACCESS_TOKEN_SECRET)
+    api = tweepy.API(auth)
+
+    tweets = ()
+
+    full_tweets = []
+    step = 200  # Maximum value is 200.
+    for start in xrange(0, max_tweets, step):
+        end = start + step
+
+        # Maximum of `step` tweets, or the remaining to reach max_tweets.
+        count = min(step, max_tweets - start)
+
+        kwargs = {'count': count}
+        if full_tweets:
+            last_id = full_tweets[-1].id
+            kwargs['max_id'] = last_id - 1
+
+        if tweet_type == 'timeline':
+            current = api.user_timeline(twitter_user, **kwargs)
+        else:
+            current = api.favorites(twitter_user, **kwargs)
+
+        full_tweets.extend(current)
+
+    for tweet in full_tweets:
+        text = re.sub(r'(https?://\S+)', '', tweet.text)
+
+        score = tweet.favorite_count + tweet.retweet_count
+        if tweet.in_reply_to_status_id_str:
+            score -= 15
+
+        # Only tweets with at least five words.
+        if len(re.split(r'[^0-9A-Za-z]+', text)) > min_words:
+            tweets.append((text, score))
+
+
+    return JsonResponse(tweets,safe=False)
+
+  # 1000 = 5 requests (out of 180 in the window).
 
 @csrf_exempt
 def abc(request):
@@ -133,6 +195,7 @@ def abc(request):
                 tweets.append((text, score))
 
         return tweets
+        return JsonResponse(tweets,safe=False)
 
     tweets = []
     tweets.extend(get_tweets(api, TWITTER_USER, 'timeline', 1000))  # 400 = 2 requests (out of 15 in the window).
@@ -168,6 +231,7 @@ def abc(request):
         loc=str(response.json()['events'][0]['start']['timezone'].encode('utf8'))
         try:
             obj=ExistingOffers.objects.get(city_arrival=loc)
+
         except ObjectDoesNotExist:
             val=True
 
@@ -187,9 +251,11 @@ def abc(request):
                 objnew.counter=objnew.counter+1
 
 
-        if val==False:
-            finalList.append(str(response.json()['events'][0]['name']['text'].encode('utf8'))+", "+str(response.json()['events'][0]['start']['timezone'].encode('utf8')))
-            finalList.append(str(response.json()['events'][0]['start']['local'].encode('utf8')+"  "))
+        #if val==False:
+## we have tabbed
+        finalList.append("category: "+str(item+":\n"))
+        finalList.append(str(response.json()['events'][0]['name']['text'].encode('utf8'))+", "+str(response.json()['events'][0]['start']['timezone'].encode('utf8')))
+        finalList.append(str(response.json()['events'][0]['start']['local'].encode('utf8')+"  "))
 
         loc = str(response.json()['events'][1]['start']['timezone'].encode('utf8'))
         try:
@@ -212,10 +278,10 @@ def abc(request):
             if val2 == False:
                 objnew.counter = objnew.counter + 1
 
-        if val == False:
+        #if val == False:
 
-            finalList.append(str(response.json()['events'][1]['name']['text'].encode('utf8'))+", "+str(response.json()['events'][1]['start']['timezone'].encode('utf8')))
-            finalList.append(str(response.json()['events'][1]['start']['local'].encode('utf8') + "  "))
+        finalList.append(str(response.json()['events'][1]['name']['text'].encode('utf8'))+", "+str(response.json()['events'][1]['start']['timezone'].encode('utf8')))
+        finalList.append(str(response.json()['events'][1]['start']['local'].encode('utf8') + "  "))
 
 
 

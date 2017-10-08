@@ -50,9 +50,9 @@ def Profile(request):
 
 
 def Login(request):
-    if request.method == "POST":
-        user_name = request.POST['user_name']
-        password = request.POST['password']
+    #if request.method == "POST":
+    #    user_name = request.POST['user_name']
+    #    password = request.POST['password']
         #user = authenticate(user_name=user_name, password=password)
         #u= User.objects.all().order_by('?')[:5]
 
@@ -67,7 +67,7 @@ def Login(request):
         #    else:
 
 
-    return render(request, 'dashboard.html', {'form': form})
+    return render(request, 'dashboard.html')
             #    return render(request, 'login.html', {'error_message': 'Your account has been disabled'})
     #else:
     #    return redirect('./dashboard.html')
